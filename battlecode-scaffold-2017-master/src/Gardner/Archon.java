@@ -6,37 +6,24 @@ import battlecode.common.GameActionException;
 
 public class Archon extends Unit {
     static int gardnerCount = 0;
+    static Direction direction = Util.randomDirection();
 
-    public static void loop() throws GameActionException {
-        System.out.println("I'm an archon!");
+    public  void loop() throws GameActionException {
+        if (gardnerCount < 2) {
+            for (int i = 0; i < 8; i++) {
+                Direction dir = Util.getDirectionForInt(i);
 
-        // The code you want your robot to perform every round should be in this loop
-        while (true) {
-
-            // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
-            try {
-
-                if (gardnerCount < 5) {
-                    for (int i = 0; i < 8; i++) {
-                        Direction dir = Util.getDirectionForInt(i);
-
-                        if (rc.canHireGardener(dir)) {
-                            gardnerCount++;
-                            rc.hireGardener(dir);
-                        }
-                    }
+                if (rc.canHireGardener(dir)) {
+                    gardnerCount++;
+                    rc.hireGardener(dir);
                 }
-
-                // Move randomly
-                Util.tryMove(Util.randomDirection());
-
-                // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
-                Clock.yield();
-
-            } catch (Exception e) {
-                System.out.println("Archon Exception");
-                e.printStackTrace();
             }
         }
+
+        if (Math.random() < 0.1) {
+            direction = Util.randomDirection();
+        }
+
+        Util.tryMove(direction);
     }
 }

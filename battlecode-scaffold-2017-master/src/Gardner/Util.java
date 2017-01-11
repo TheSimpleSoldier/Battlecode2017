@@ -1,14 +1,34 @@
 package Gardner;
 
-import battlecode.common.BulletInfo;
-import battlecode.common.Direction;
-import battlecode.common.GameActionException;
-import battlecode.common.MapLocation;
+import battlecode.common.*;
 
 /**
  * Created by fredkneeland on 1/10/17.
  */
 public class Util {
+
+    /**
+     * Causes a unit to water any trees around it that need it
+     *
+     * @throws GameActionException
+     */
+    public static void waterTrees() throws GameActionException{
+        TreeInfo[] trees = Unit.rc.senseNearbyTrees();
+        for (int i = trees.length; --i >=0; ) {
+            TreeInfo tree = trees[i];
+
+            if (tree.getTeam() == Unit.rc.getTeam()) {
+                if (tree.getHealth() < 40) {
+                    if (Unit.rc.canWater(tree.getID())) {
+                        Unit.rc.water(tree.getID());
+                    } else {
+                        System.out.println("cant watter tree");
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Returns a random Direction
      * @return a random Direction
@@ -21,7 +41,7 @@ public class Util {
      * Returns a direction
      */
     static Direction getDirectionForInt(int dir) {
-        return new Direction(dir * 2 * (float)Math.PI);
+        return new Direction((float)dir / 8 * 2 * (float)Math.PI);
     }
 
     /**

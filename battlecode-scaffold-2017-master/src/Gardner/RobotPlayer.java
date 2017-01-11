@@ -24,12 +24,18 @@ public strictfp class RobotPlayer {
             case GARDENER:
                 unit = new Gardner();
                 break;
+            case LUMBERJACK:
+                unit = new LumberJack();
+                break;
             default:
                 unit = new Unit();
         }
 
         while(true) {
             try {
+                if (rc.getTeamBullets() >= 10000) {
+                    rc.donate(rc.getTeamBullets());
+                }
                 unit.loop();
             } catch (Exception e) {
                 System.out.println("Exception");

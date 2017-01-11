@@ -7,7 +7,8 @@ import battlecode.common.RobotController;
 public class Unit {
     static RobotController rc;
 
-    public static void loop() throws GameActionException {
+    public void loop() throws GameActionException {
+        System.out.println("I am a unit!");
         Clock.yield();
     }
 }
