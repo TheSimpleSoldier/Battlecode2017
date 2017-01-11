@@ -2,11 +2,7 @@ package Gardner;
 
 import battlecode.common.*;
 
-/**
- * Created by fredkneeland on 1/10/17.
- */
 public class Util {
-
     /**
      * Causes a unit to water any trees around it that need it
      *
@@ -17,14 +13,42 @@ public class Util {
         for (int i = trees.length; --i >=0; ) {
             TreeInfo tree = trees[i];
 
+
             if (tree.getTeam() == Unit.rc.getTeam()) {
                 if (tree.getHealth() < 40) {
                     if (Unit.rc.canWater(tree.getID())) {
                         Unit.rc.water(tree.getID());
                     } else {
-                        System.out.println("cant watter tree");
+                        System.out.println("cant water tree");
                     }
                 }
+            }
+        }
+    }
+
+    public static void moveToWaterTrees() throws GameActionException {
+        TreeInfo[] trees = Unit.rc.senseNearbyTrees();
+
+        float weakestTreeHealth = 40;
+        TreeInfo weakestTree = null;
+
+        for (int i = trees.length; --i >=0; ) {
+            TreeInfo tree = trees[i];
+
+            if (tree.getTeam() == Unit.rc.getTeam()) {// && Unit.rc.getLocation().distanceSquaredTo(tree.location) < 5) {
+                if (tree.getHealth() < weakestTreeHealth) {
+                    weakestTree = tree;
+                    weakestTreeHealth = tree.getHealth();
+                }
+            }
+        }
+
+        if (weakestTree != null) {
+            System.out.println("moving towards weakest tree");
+            if (Unit.rc.canWater(weakestTree.getID())) {
+                Unit.rc.water(weakestTree.getID());
+            } else {
+                tryMove(Unit.rc.getLocation().directionTo(weakestTree.location));
             }
         }
     }

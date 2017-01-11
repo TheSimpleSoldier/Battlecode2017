@@ -2,10 +2,7 @@ package Gardner;
 
 import battlecode.common.*;
 
-
-public class LumberJack extends Unit {
-    static int currentEnemyArchon = 0;
-
+public class LocalLumberJack extends Unit {
     public void loop() throws GameActionException {
         // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
         RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+ GameConstants.LUMBERJACK_STRIKE_RADIUS, enemy);
@@ -36,19 +33,20 @@ public class LumberJack extends Unit {
 
                 Util.tryMove(toEnemy);
             } else {
-                MapLocation[] enemyArchons = rc.getInitialArchonLocations(enemy);
+                float closestTreeDist = Float.MAX_VALUE;
+                MapLocation closestTree = null;
 
-                MapLocation enemyArchon = enemyArchons[currentEnemyArchon];
-
-                if (rc.getLocation().distanceSquaredTo(enemyArchon) < 10) {
-                    currentEnemyArchon = (currentEnemyArchon + 1) % rc.getInitialArchonLocations(enemy).length;
+                for (int i = trees.length; --i>=0; ) {
+                    if (trees[i].getTeam() != rc.getTeam() && trees[i].location.distanceSquaredTo(rc.getLocation()) < closestTreeDist) {
+                        closestTree = trees[i].location;
+                        closestTreeDist = trees[i].location.distanceSquaredTo(rc.getLocation());
+                    }
                 }
-                Direction dir = rc.getLocation().directionTo(enemyArchon);
 
-                // Move Randomly
-                Util.tryMove(dir);
+                if (closestTree != null) {
+                    Util.tryMove(rc.getLocation().directionTo(closestTree));
+                }
             }
         }
     }
-
 }

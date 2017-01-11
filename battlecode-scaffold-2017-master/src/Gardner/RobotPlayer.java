@@ -25,7 +25,7 @@ public strictfp class RobotPlayer {
                 unit = new Gardner();
                 break;
             case LUMBERJACK:
-                unit = new LumberJack();
+                unit = new LocalLumberJack();
                 break;
             default:
                 unit = new Unit();

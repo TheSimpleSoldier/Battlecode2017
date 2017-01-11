@@ -14,9 +14,9 @@ public class Gardner extends Unit {
             int count = rc.readBroadcast(0);
 
             if (count % 2 == 0) {
-                farmer = true;
+                farmer = false;
             } else {
-                farmer = true;
+                farmer = false;
             }
 
             rc.broadcast(0, ++count);
@@ -32,25 +32,46 @@ public class Gardner extends Unit {
         if (farmer) {
             Util.waterTrees();
              if (rc.getLocation().distanceSquaredTo(idealSpot) <= 1) {
+                 boolean moveToWaterTrees = true;
                  if (rc.hasTreeBuildRequirements()) {
                      Direction dir;
-                     TreeInfo[] trees = rc.senseNearbyTrees(5);
 
-                     for (int i = 0; i < 8; i++) {
-                         dir = Util.getDirectionForInt(i);
+                     dir = Direction.getNorth();
 
-                         if (treesPlanted[i]) continue;
-
-                         if (!rc.isLocationOccupiedByTree(rc.getLocation().add(dir, 2))) {
-                             Util.tryMove(dir);
-                             if (rc.canPlantTree(dir)) {
-                                 rc.plantTree(dir);
-                                 treesPlanted[i] = true;
-                                 break;
-                             }
+                     do {
+                         if (rc.canPlantTree(dir)) {
+                             rc.plantTree(dir);
+                             break;
                          }
-                     }
+                         dir = dir.rotateRightDegrees(5);
+
+                     } while (dir.getAngleDegrees() < 350);
+
+//                     for (int i = 0; i < 8; i++) {
+//                         dir = Util.getDirectionForInt(i);
+//
+//                         if (treesPlanted[i]) continue;
+//                         moveToWaterTrees = false;
+//
+//                         if (!rc.isLocationOccupiedByTree(rc.getLocation().add(dir, 2))) {
+//                             Util.tryMove(dir);
+//                             if (rc.canPlantTree(dir)) {
+//                                 rc.plantTree(dir);
+//                                 treesPlanted[i] = true;
+//                                 break;
+//                             }
+//                         }
+//                     }
+                 } else {
+                     moveToWaterTrees = false;
+                     Util.moveToWaterTrees();
                  }
+
+                 if (!moveToWaterTrees) {
+                     Util.moveToWaterTrees();
+                 }
+
+
              } else {
                  Direction dir = rc.getLocation().directionTo(idealSpot);
                  if (Util.tryMove(dir));
@@ -66,8 +87,6 @@ public class Gardner extends Unit {
                      }
                  }
              }
-
-            Util.waterTrees();
         } else {
             if (rc.hasRobotBuildRequirements(RobotType.LUMBERJACK)) {
                 for (int i = 0; i < 8; i++) {
@@ -75,6 +94,7 @@ public class Gardner extends Unit {
 
                     if (rc.canBuildRobot(RobotType.LUMBERJACK, dir)) {
                         rc.buildRobot(RobotType.LUMBERJACK, dir);
+                        farmer = true;
                     }
                 }
             }
