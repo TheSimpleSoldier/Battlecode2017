@@ -3,7 +3,7 @@ package Gardner;
 import battlecode.common.*;
 
 
-public class LumberJack extends Unit {
+public strictfp class LumberJack extends Unit {
     static int currentEnemyArchon = 0;
 
     public void loop() throws GameActionException {

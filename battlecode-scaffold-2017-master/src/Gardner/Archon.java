@@ -4,7 +4,7 @@ import battlecode.common.Clock;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 
-public class Archon extends Unit {
+public strictfp class Archon extends Unit {
     static int gardnerCount = 0;
     static Direction direction = Util.randomDirection();
 

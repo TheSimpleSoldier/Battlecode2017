@@ -2,7 +2,28 @@ package Gardner;
 
 import battlecode.common.*;
 
-public class Util {
+public strictfp class Util {
+
+    // 3 points 1 and 2 on a line, 3 point off line
+    public static int turnBulletWillHitLocation(MapLocation bulletSpot, MapLocation target, float speed, Direction direction, int radius) {
+        MapLocation next = bulletSpot.add(direction, 5);
+        float y1 = bulletSpot.y;
+        float y2 = next.y;
+        float y3 = target.y;
+        float x1 = bulletSpot.x;
+        float x2 = next.x;
+        float x3 = target.x;
+
+        float dist = Math.abs((y2 - y1) * x3 - (x2 - x1) * y3 + x2 * y1 - y2 * x1);
+        dist /= Math.sqrt(Math.pow((y2 - y1), 2) + Math.pow((x2 - x1), 2));
+
+        if (dist > radius) {
+            return -1;
+        }
+
+        return (int) (dist / speed);
+    }
+
     /**
      * Causes a unit to water any trees around it that need it
      *

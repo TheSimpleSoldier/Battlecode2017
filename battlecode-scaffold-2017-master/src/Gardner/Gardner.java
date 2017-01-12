@@ -2,7 +2,7 @@ package Gardner;
 
 import battlecode.common.*;
 
-public class Gardner extends Unit {
+public strictfp class Gardner extends Unit {
     static boolean initialized = false;
     static boolean farmer;
     static MapLocation idealSpot;

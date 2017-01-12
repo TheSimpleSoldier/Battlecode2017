@@ -5,9 +5,14 @@ import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.Team;
 
-public class Unit {
-    static RobotController rc;
-    static Team enemy = rc.getTeam().opponent();
+public strictfp class Unit {
+    public static RobotController rc;
+    public static Team enemy;
+
+    public Unit() {
+        rc = RobotPlayer.rc;
+        enemy = rc.getTeam().opponent();
+    }
 
     public void loop() throws GameActionException {
         System.out.println("I am a unit!");

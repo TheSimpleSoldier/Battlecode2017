@@ -2,16 +2,18 @@ package Gardner;
 import battlecode.common.*;
 
 public strictfp class RobotPlayer {
+
+    static RobotController rc;
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
      **/
     @SuppressWarnings("unused")
-    public static void run(RobotController rc) throws GameActionException {
+    public static void run(RobotController robotController) throws GameActionException {
 
         // This is the RobotController object. You use it to perform actions from this robot,
         // and to get information on its current status.
-        Unit.rc = rc;
+        rc = robotController;
         Unit unit;
 
 
@@ -26,6 +28,9 @@ public strictfp class RobotPlayer {
                 break;
             case LUMBERJACK:
                 unit = new LocalLumberJack();
+                break;
+            case SCOUT:
+                unit = new Scout();
                 break;
             default:
                 unit = new Unit();
