@@ -1,75 +1,64 @@
 package Gardner;
 
 import battlecode.common.*;
-import scala.Int;
 
 public class Scout extends Unit {
     public static MapLocation target;
+    public static int currentArchonTarget = 0;
 
     public void loop() throws GameActionException {
+
+        if (target == null || rc.getLocation().distanceSquaredTo(target) < 10) {
+            MapLocation[] enemyArchons =  rc.getInitialArchonLocations(enemy);
+            if (currentArchonTarget < enemyArchons.length) {
+                target = enemyArchons[currentArchonTarget];
+            } else if (currentArchonTarget == enemyArchons.length) {
+                target = Util.furthestCorner(Util.com(rc.getInitialArchonLocations(rc.getTeam())), enemyArchons);
+            } else {
+                target = rc.getLocation().add(Util.randomDirection(), 10);
+            }
+
+            currentArchonTarget = (currentArchonTarget + 1) % (enemyArchons.length + 2);
+        }
+
         BulletInfo[] bullets = rc.senseNearbyBullets();
+        RobotInfo[] enemyUnits = rc.senseNearbyRobots(rc.getType().sensorRadius, enemy);
 
+        float leastDamage = Float.MAX_VALUE;
+        Direction bestDir = null;
+        MapLocation bestLoc = null;
 
-        if (bullets.length > 0) {
-            int smallestBulletCount = Int.MaxValue();
-            Direction bestDir = null;
-            MapLocation bestLoc = null;
-
+        if (bullets.length > 0 || enemyUnits.length > 0) {
             for (int i = 0; i < 16; i++) {
-                int bulletCount = 0;
                 Direction dir = new Direction(i / 8 * (float)Math.PI);
 
                 MapLocation next = rc.getLocation().add(dir, rc.getType().strideRadius);
 
-                for (int j = 0; j < bullets.length; j++) {
-                    BulletInfo bullet = bullets[j];
-                    float velocity = bullet.getSpeed();
-                    Direction bulletDir = bullet.getDir();
+                float damage = Util.PotentialDamageFromLocation(next, bullets, enemyUnits, 1);
 
-                    int turn = Util.turnBulletWillHitLocation(bullet.location, next, velocity, bulletDir, 1);
-
-                    if (turn == 1) {
-                        bulletCount++;
-                    }
-                }
-
-
-                if (bulletCount < smallestBulletCount) {
-                    bestLoc = next;
+                if (damage < leastDamage) {
+                    leastDamage = damage;
                     bestDir = dir;
-                    smallestBulletCount = bulletCount;
-                } else if (bulletCount == smallestBulletCount) {
-                    if (bestLoc.distanceSquaredTo(target) > next.distanceSquaredTo(target)) {
-                        bestLoc = next;
-                        bestDir = dir;
-                    }
+                    bestLoc = next;
+                } else if (damage == leastDamage && (next.distanceSquaredTo(target) < bestLoc.distanceSquaredTo(target))) {
+                    bestDir = dir;
+                    bestLoc = next;
                 }
             }
-
-            if (smallestBulletCount == 0) {
-                Util.tryMove(bestDir);
-            } else {
-                int bulletCount = 0;
-                for (int i = 0; i < bullets.length; i++) {
-                    BulletInfo bullet = bullets[i];
-                    float velocity = bullet.getSpeed();
-                    Direction dir = bullet.getDir();
-
-                    int turn = Util.turnBulletWillHitLocation(bullet.location, rc.getLocation(), velocity, dir, 1);
-
-                    if (turn == 1) {
-                        bulletCount++;
-                    }
-                }
-
-                if (bulletCount == 0) {
-                    // do not move
-                } else {
-                    Util.tryMove(bestDir);
-                }
-            }
-        } else {
-
         }
+
+        if (bestDir == null) {
+            bestDir = rc.getLocation().directionTo(target);
+            leastDamage = -1;
+        }
+
+        // move
+        if (leastDamage <= Util.PotentialDamageFromLocation(rc.getLocation(), bullets, enemyUnits, 1)) {
+            Util.tryMove(bestDir);
+        }
+
+
+        // shoot
+//        if ()
     }
 }

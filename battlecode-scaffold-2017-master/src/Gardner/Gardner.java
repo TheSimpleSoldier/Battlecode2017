@@ -88,16 +88,27 @@ public strictfp class Gardner extends Unit {
                  }
              }
         } else {
-            if (rc.hasRobotBuildRequirements(RobotType.LUMBERJACK)) {
-                for (int i = 0; i < 8; i++) {
+
+            if (rc.hasRobotBuildRequirements(RobotType.SCOUT)) {
+                for (int i = 0; i < 16; i++) {
                     Direction dir = Util.getDirectionForInt(i);
 
-                    if (rc.canBuildRobot(RobotType.LUMBERJACK, dir)) {
-                        rc.buildRobot(RobotType.LUMBERJACK, dir);
-                        farmer = true;
+                    if (rc.canBuildRobot(RobotType.SCOUT, dir)) {
+                        rc.buildRobot(RobotType.SCOUT, dir);
                     }
                 }
             }
+
+//            if (rc.hasRobotBuildRequirements(RobotType.LUMBERJACK)) {
+//                for (int i = 0; i < 8; i++) {
+//                    Direction dir = Util.getDirectionForInt(i);
+//
+//                    if (rc.canBuildRobot(RobotType.LUMBERJACK, dir)) {
+//                        rc.buildRobot(RobotType.LUMBERJACK, dir);
+//                        farmer = true;
+//                    }
+//                }
+//            }
 
             Direction dir = Util.randomDirection();
             MapLocation next = rc.getLocation().add(dir);

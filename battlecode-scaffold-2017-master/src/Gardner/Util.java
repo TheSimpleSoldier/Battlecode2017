@@ -4,6 +4,84 @@ import battlecode.common.*;
 
 public strictfp class Util {
 
+
+    public static float PotentialDamageFromLocation(MapLocation loc, BulletInfo[] bullets, RobotInfo[] enemies, int radius) {
+        float damage = 0;
+
+        for (int j = 0; j < bullets.length; j++) {
+            BulletInfo bullet = bullets[j];
+            float velocity = bullet.getSpeed();
+            Direction bulletDir = bullet.getDir();
+
+            int turn = Util.turnBulletWillHitLocation(bullet.location, loc, velocity, bulletDir, radius);
+
+            if (turn <= 1) {
+                damage += bullet.damage;
+            }
+        }
+
+        for (int i = enemies.length; --i>=0; ) {
+            RobotInfo enemy = enemies[i];
+
+            if (enemy.type == RobotType.LUMBERJACK) {
+                if (loc.distanceSquaredTo(enemy.location) <= (GameConstants.LUMBERJACK_STRIKE_RADIUS + enemy.type.strideRadius)) {
+                    damage += enemy.type.attackPower;
+                }
+            } else if (enemy.type == RobotType.SCOUT || enemy.type == RobotType.SOLDIER || enemy.type == RobotType.TANK) {
+                if (loc.distanceSquaredTo(enemy.location) <= (enemy.type.bulletSpeed + enemy.type.strideRadius)) {
+                    damage += enemy.type.attackPower;
+                }
+            }
+        }
+
+        return damage;
+    }
+
+    /**
+     * This method finds the furthest corner of a list of map locations from a point
+     *
+     * @param current
+     * @param locs
+     * @return
+     */
+    public static MapLocation furthestCorner(MapLocation current,MapLocation[] locs) {
+        float x = 0;
+        float y = 0;
+
+        for (int i = locs.length; --i>=0; ) {
+            if (Math.abs(locs[i].x - current.x) > x) {
+                x = locs[i].x;
+            }
+
+            if (Math.abs(locs[i].y - current.y) > y) {
+                y = locs[i].y;
+            }
+        }
+
+        return new MapLocation(x, y);
+    }
+
+    /**
+     * This method gets the center of mass of a list of map locations
+     *
+     * @param locs
+     * @return
+     */
+    public static MapLocation com(MapLocation[] locs) {
+        float x = 0;
+        float y = 0;
+
+        for (int i = locs.length; --i >=0; ) {
+            x += locs[i].x;
+            y += locs[i].y;
+        }
+
+        x /= locs.length;
+        y /= locs.length;
+
+        return new MapLocation(x,y);
+    }
+
     // 3 points 1 and 2 on a line, 3 point off line
     public static int turnBulletWillHitLocation(MapLocation bulletSpot, MapLocation target, float speed, Direction direction, int radius) {
         MapLocation next = bulletSpot.add(direction, 5);
