@@ -59,6 +59,21 @@ public class Scout extends Unit {
 
 
         // shoot
-//        if ()
+        if (enemyUnits.length > 0) {
+            float closestDist = Float.MAX_VALUE;
+            MapLocation closest = null;
+            for (int i = enemyUnits.length; --i>=0; ) {
+                MapLocation current = enemyUnits[i].location;
+                float currentDist = rc.getLocation().distanceSquaredTo(current);
+                if (currentDist < closestDist) {
+                    closestDist = currentDist;
+                    closest = current;
+                }
+            }
+
+            if (closest != null) {
+                rc.fireSingleShot(rc.getLocation().directionTo(closest));
+            }
+        }
     }
 }
