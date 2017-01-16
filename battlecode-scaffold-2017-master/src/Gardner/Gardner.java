@@ -7,6 +7,7 @@ public strictfp class Gardner extends Unit {
     static boolean farmer;
     static MapLocation idealSpot;
     static boolean[] treesPlanted = new boolean[8];
+    static boolean hasBuiltScout = false;
 
     public void loop() throws GameActionException {
 
@@ -89,26 +90,30 @@ public strictfp class Gardner extends Unit {
              }
         } else {
 
-            if (rc.hasRobotBuildRequirements(RobotType.SCOUT)) {
-                for (int i = 0; i < 16; i++) {
-                    Direction dir = Util.getDirectionForInt(i);
+            if (!hasBuiltScout) {
+                if (rc.hasRobotBuildRequirements(RobotType.SCOUT)) {
+                    for (int i = 0; i < 16; i++) {
+                        Direction dir = Util.getDirectionForInt(i);
 
-                    if (rc.canBuildRobot(RobotType.SCOUT, dir)) {
-                        rc.buildRobot(RobotType.SCOUT, dir);
+                        if (rc.canBuildRobot(RobotType.SCOUT, dir)) {
+                            rc.buildRobot(RobotType.SCOUT, dir);
+                            hasBuiltScout = true;
+                        }
                     }
                 }
             }
 
-//            if (rc.hasRobotBuildRequirements(RobotType.LUMBERJACK)) {
-//                for (int i = 0; i < 8; i++) {
-//                    Direction dir = Util.getDirectionForInt(i);
-//
-//                    if (rc.canBuildRobot(RobotType.LUMBERJACK, dir)) {
-//                        rc.buildRobot(RobotType.LUMBERJACK, dir);
-//                        farmer = true;
-//                    }
-//                }
-//            }
+
+            if (rc.hasRobotBuildRequirements(RobotType.LUMBERJACK)) {
+                for (int i = 0; i < 8; i++) {
+                    Direction dir = Util.getDirectionForInt(i);
+
+                    if (rc.canBuildRobot(RobotType.LUMBERJACK, dir)) {
+                        rc.buildRobot(RobotType.LUMBERJACK, dir);
+                        farmer = true;
+                    }
+                }
+            }
 
             Direction dir = Util.randomDirection();
             MapLocation next = rc.getLocation().add(dir);
@@ -159,31 +164,5 @@ public strictfp class Gardner extends Unit {
             }
             Util.tryMove(dir);
         }
-
-
-
-//        System.out.println("I'm a gardener!");
-//
-//                Direction dir = Util.randomDirection();
-//
-//                MapLocation next = rc.getLocation().add(dir);
-//
-//                // search for trees in need of watering
-//
-//                // search for location to place trees
-//
-//                if (next.x % 3 < 1 && next.y % 3 < 1) {
-//                    if (rc.canPlantTree(dir)) {
-//                        rc.plantTree(dir);
-//                    }
-//                } else {
-//                    TreeInfo[] trees = rc.senseNearbyTrees(10, rc.getTeam());
-//                    for (int i = 0; i < trees.length; i++) {
-//                        if (trees[i].getHealth() < 40 && rc.canWater(trees[i].getID())) {
-//                            rc.water(trees[i].getID());
-//                        }
-//                    }
-//                    Util.tryMove(dir);
-//                }
     }
 }
