@@ -1,12 +1,10 @@
 package Gardner;
 
-import battlecode.common.GameActionException;
-import battlecode.common.MapLocation;
-import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
+import battlecode.common.*;
 
 public class UnitGardner extends Unit {
     static MapLocation target;
+    static boolean tank = true;
 
     @Override
     public void loop() throws GameActionException {
@@ -29,7 +27,12 @@ public class UnitGardner extends Unit {
             if (Util.needScout()) {
                 Util.createUnit(RobotType.SCOUT);
             } else {
-                Util.createUnit(RobotType.TANK);
+                if (tank && Util.createUnit(RobotType.TANK)) {
+                     tank = false;
+                } else if (Util.createUnit(RobotType.SOLDIER)) {
+                    tank = true;
+                }
+
                 if (rc.getLocation().distanceSquaredTo(target) > 10) {
                     Util.tryMove(rc.getLocation().directionTo(target));
                 }

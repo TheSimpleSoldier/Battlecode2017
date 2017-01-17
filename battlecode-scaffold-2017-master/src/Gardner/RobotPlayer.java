@@ -41,6 +41,9 @@ public strictfp class RobotPlayer {
             case TANK:
                 unit = new Tank();
                 break;
+            case SOLDIER:
+                unit = new Tank();
+                break;
             default:
                 unit = new Unit();
         }
@@ -49,6 +52,9 @@ public strictfp class RobotPlayer {
             try {
                 if (rc.getTeamBullets() >= 10000) {
                     rc.donate(rc.getTeamBullets());
+                } else if (rc.getRoundLimit() - rc.getRoundNum() < 5 ) {
+                    // donate all our bullets at the end of the game
+                    rc.donate((int)(rc.getTeamBullets() / 10) * 10);
                 }
 
                 // find map bounds

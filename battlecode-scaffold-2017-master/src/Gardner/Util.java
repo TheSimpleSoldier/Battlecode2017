@@ -1,13 +1,12 @@
 package Gardner;
 
 import battlecode.common.*;
-import scala.Int;
 
 public strictfp class Util {
     public static boolean notFoundCorners = true;
+    static int enemyArchon = 0;
 
-
-    public static MapLocation nextTargetLocation() throws GameActionException {
+    public static MapLocation nextTargetLocation(RobotInfo[] enemies) throws GameActionException {
         MapLocation us = Unit.rc.getLocation();
 
         // look for archons in distress nearby
@@ -67,10 +66,29 @@ public strictfp class Util {
         }
 
         // look for enemy units to kill
+        float closestDist = 99999;
+        MapLocation closest = null;
+        for (int i = enemies.length; --i>=0; ) {
+            MapLocation loc = enemies[i].location;
+            float currentDist = loc.distanceSquaredTo(us);
+            if (currentDist < closestDist) {
+                closest = loc;
+                closestDist = currentDist;
+            }
+        }
+
+        if (closest != null) {
+            return closest;
+        }
 
         // head towards enemy archon starting points
+        MapLocation target = Unit.enemyArchons[enemyArchon];
+        if (target.distanceSquaredTo(us) <= 10) {
+            enemyArchon = (enemyArchon + 1) % (Unit.enemyArchons.length);
+            target = Unit.enemyArchons[enemyArchon];
+        }
 
-        return null;
+        return target;
     }
 
     /**
@@ -87,7 +105,7 @@ public strictfp class Util {
         // if our army is bigger then don't send out distress call
         if (ArmyFirePower(enemies) <= ArmyFirePower(allies)) return;
 
-        int oldestTimeStamp = Int.MaxValue();
+        int oldestTimeStamp = Integer.MAX_VALUE;
         int oldestChannel = 0;
 
         for (int i = Constants.gardnerInDestressTimeStamps.length; --i>=0; ) {
@@ -203,7 +221,7 @@ public strictfp class Util {
         if (firstArchonID == 0 || firstArchonID == id) {
             Unit.rc.broadcast(Constants.enemyArchon1ID, id);
             int loc = encodeMapLocationIntoInt(enemyArchon.location);
-            Unit.rc.broadcast(Constants.enemyArchon1Loc, loc);\
+            Unit.rc.broadcast(Constants.enemyArchon1Loc, loc);
             Unit.rc.broadcast(Constants.enemyArchon1TimeStamp, Unit.rc.getRoundNum());
         } else {
             int secondArchonID = Unit.rc.readBroadcast(Constants.enemyArchon2ID);
@@ -369,7 +387,7 @@ public strictfp class Util {
      * @param unit
      * @throws GameActionException
      */
-    public static void createUnit(RobotType unit) throws GameActionException {
+    public static boolean createUnit(RobotType unit) throws GameActionException {
         if (Unit.rc.hasRobotBuildRequirements(unit)) {
             Direction dir = Direction.getNorth();
             int counter = 0;
@@ -381,8 +399,10 @@ public strictfp class Util {
 
             if (Unit.rc.canBuildRobot(unit, dir)) {
                 Unit.rc.buildRobot(unit, dir);
+                return true;
             }
         }
+        return false;
     }
 
     /**
