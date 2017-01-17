@@ -4,6 +4,7 @@ import battlecode.common.*;
 public strictfp class RobotPlayer {
 
     static RobotController rc;
+    static boolean searchingForEdges = true;
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -24,13 +25,21 @@ public strictfp class RobotPlayer {
                 unit = new Archon();
                 break;
             case GARDENER:
-                unit = new Gardner();
+                if (rc.readBroadcast(Constants.gardnerCount) <= 3) {
+                    unit = new TreeGardner();
+                } else {
+                    unit = new UnitGardner();
+                }
+
                 break;
             case LUMBERJACK:
                 unit = new LocalLumberJack();
                 break;
             case SCOUT:
-                unit = new Scout();
+                unit = new AnnoyScout();
+                break;
+            case TANK:
+                unit = new Tank();
                 break;
             default:
                 unit = new Unit();
@@ -41,6 +50,11 @@ public strictfp class RobotPlayer {
                 if (rc.getTeamBullets() >= 10000) {
                     rc.donate(rc.getTeamBullets());
                 }
+
+                // find map bounds
+                if (searchingForEdges && Util.scanForMapEdges());
+                else searchingForEdges = false;
+
                 unit.loop();
             } catch (Exception e) {
                 System.out.println("Exception");

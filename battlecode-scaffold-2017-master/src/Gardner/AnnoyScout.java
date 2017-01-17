@@ -2,11 +2,12 @@ package Gardner;
 
 import battlecode.common.*;
 
-public class Scout extends Unit {
+public class AnnoyScout extends Unit {
     public static MapLocation target;
     public static int currentArchonTarget = 0;
     public static boolean scouted = false;
 
+    @Override
     public void loop() throws GameActionException {
         // scout out the map
         if (!scouted && SearchScout.loop()) {
@@ -34,8 +35,9 @@ public class Scout extends Unit {
         }
 
         Util.scoutMove(dir, bullets, enemyUnits);
+        TreeInfo[] trees = rc.senseNearbyTrees();
+        Util.scanEnemyInformation(enemyUnits, trees);
 
-        RobotInfo[] allies = rc.senseNearbyRobots(mySensorRadius, us);
-        Util.shootAtEnemies(enemyUnits, allies);
+//        RobotInfo[] allies = rc.senseNearbyRobots(mySensorRadius, us);
     }
 }

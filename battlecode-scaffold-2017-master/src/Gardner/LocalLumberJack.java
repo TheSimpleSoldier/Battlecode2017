@@ -3,6 +3,7 @@ package Gardner;
 import battlecode.common.*;
 
 public class LocalLumberJack extends Unit {
+
     public void loop() throws GameActionException {
         // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
         RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+ GameConstants.LUMBERJACK_STRIKE_RADIUS, enemy);
@@ -17,13 +18,14 @@ public class LocalLumberJack extends Unit {
             for (int i = trees.length; --i >= 0; ) {
                 TreeInfo tree = trees[i];
 
-                if ((tree.getTeam() == Team.NEUTRAL || tree.getTeam() == rc.getTeam().opponent()) && rc.canChop(tree.getID())) {
+                if ((tree.getTeam() == Team.NEUTRAL || tree.getTeam() == enemy) && rc.canChop(tree.getID())) {
                     rc.chop(tree.getID());
+                    return;
                 }
             }
 
             // No close robots, so search for robots within sight radius
-            robots = rc.senseNearbyRobots(-1, enemy);
+            robots = rc.senseNearbyRobots(mySensorRadius, enemy);
 
             // If there is a robot, move towards it
             if(robots.length > 0) {
@@ -32,6 +34,8 @@ public class LocalLumberJack extends Unit {
                 Direction toEnemy = myLocation.directionTo(enemyLocation);
 
                 Util.tryMove(toEnemy);
+
+                Util.LumberJackAttack();
             } else {
                 float closestTreeDist = Float.MAX_VALUE;
                 MapLocation closestTree = null;
@@ -45,6 +49,12 @@ public class LocalLumberJack extends Unit {
 
                 if (closestTree != null) {
                     Util.tryMove(rc.getLocation().directionTo(closestTree));
+                } else {
+                    MapLocation target = Util.bestCorner();
+
+                    if (target != null) {
+                        Util.tryMove(rc.getLocation().directionTo(target));
+                    }
                 }
             }
         }
