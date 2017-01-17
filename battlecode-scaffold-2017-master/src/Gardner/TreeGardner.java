@@ -7,7 +7,12 @@ public class TreeGardner extends Unit {
 
 
     public void loop() throws GameActionException {
+        RobotInfo[] enemies = rc.senseNearbyRobots(mySensorRadius, enemy);
         RobotInfo[] allies = rc.senseNearbyRobots(mySensorRadius, us);
+
+        // send out distress signal if needed
+        Util.GardnerDistressSignal(enemies, allies);
+
         TreeInfo[] trees = rc.senseNearbyTrees();
         Direction dir = null;
         boolean needUnit = false;

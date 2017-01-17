@@ -35,7 +35,9 @@ public class AnnoyScout extends Unit {
         }
 
         Util.scoutMove(dir, bullets, enemyUnits);
+        TreeInfo[] trees = rc.senseNearbyTrees();
+        Util.scanEnemyInformation(enemyUnits, trees);
 
-        RobotInfo[] allies = rc.senseNearbyRobots(mySensorRadius, us);
+//        RobotInfo[] allies = rc.senseNearbyRobots(mySensorRadius, us);
     }
 }

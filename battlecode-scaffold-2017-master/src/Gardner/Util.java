@@ -1,10 +1,224 @@
 package Gardner;
 
 import battlecode.common.*;
+import scala.Int;
 
 public strictfp class Util {
     public static boolean notFoundCorners = true;
 
+
+    public static MapLocation nextTargetLocation() throws GameActionException {
+        MapLocation us = Unit.rc.getLocation();
+
+        // look for archons in distress nearby
+        if (Unit.rc.getRoundNum() - Unit.rc.readBroadcast(Constants.ArchonInDestressTimeStamp) <= Constants.roundCutOff) {
+            MapLocation loc = decodeMapLocationFromInt(Unit.rc.readBroadcast(Constants.ArchonInDestress));
+
+            if (loc.distanceSquaredTo(us) <= Constants.farthestDistToRespondToAttack) {
+                return loc;
+            }
+        }
+
+        // look for gardners in distress nearby
+        for (int i = Constants.gardnerInDestressTimeStamps.length; --i>=0; ) {
+            if (Unit.rc.getRoundNum() - Unit.rc.readBroadcast(Constants.gardnerInDestressTimeStamps[i]) <= Constants.roundCutOff) {
+                MapLocation loc = decodeMapLocationFromInt(Unit.rc.readBroadcast(Constants.gardnerInDistressLocs[i]));
+
+                if (loc.distanceSquaredTo(us) <= Constants.farthestDistToRespondToAttack) {
+                    return loc;
+                }
+            }
+        }
+
+        // look for enemy archons nearby
+
+        // look for enemy gardners nearby
+
+        // look for enemy units to kill
+
+        // head towards enemy archon starting points
+
+        return null;
+    }
+
+    /**
+     * This method sends out a distress signal for gardners
+     *
+     * @param enemies
+     * @param allies
+     * @throws GameActionException
+     */
+    public static void GardnerDistressSignal(RobotInfo[] enemies, RobotInfo[] allies) throws GameActionException {
+        // if there are no enemies do not send out distress call
+        if (enemies.length == 0) return;
+
+        // if our army is bigger then don't send out distress call
+        if (ArmyFirePower(enemies) <= ArmyFirePower(allies)) return;
+
+        int oldestTimeStamp = Int.MaxValue();
+        int oldestChannel = 0;
+
+        for (int i = Constants.gardnerInDestressTimeStamps.length; --i>=0; ) {
+            int val = Unit.rc.readBroadcast(Constants.gardnerInDestressTimeStamps[i]);
+
+            if (val < oldestTimeStamp) {
+                oldestTimeStamp = val;
+                oldestChannel = i;
+            }
+        }
+
+        Unit.rc.broadcast(Constants.gardnerInDestressTimeStamps[oldestChannel], Unit.rc.getRoundNum());
+        Unit.rc.broadcast(Constants.gardnerInDistressLocs[oldestChannel], encodeMapLocationIntoInt(Unit.rc.getLocation()));
+    }
+
+    /**
+     * This method sends out a distress signal for archons
+     *
+     * @param enemies
+     * @param allies
+     * @throws GameActionException
+     */
+    public static void ArchonDistressSignal(RobotInfo[] enemies, RobotInfo[] allies) throws GameActionException {
+        // if there are no enemies do not send out distress call
+        if (enemies.length == 0) return;
+
+        // if our army is bigger then don't send out distress call
+        if (ArmyFirePower(enemies) <= ArmyFirePower(allies)) return;
+
+        Unit.rc.broadcast(Constants.ArchonInDestressTimeStamp, Unit.rc.getRoundNum());
+        Unit.rc.broadcast(Constants.ArchonInDestress, encodeMapLocationIntoInt(Unit.rc.getLocation()));
+    }
+
+    /**
+     * This method calculates the power of an army of units
+     *
+     * @param units
+     * @return
+     */
+    public static int ArmyFirePower(RobotInfo[] units) {
+        int power = 0;
+        for (int i = units.length; --i>=0; ) {
+            power += units[i].type.attackPower * units[i].health;
+        }
+
+        return power;
+    }
+
+    /**
+     * This method updates enemy positions
+     *
+     * @param enemies
+     * @param trees
+     * @throws GameActionException
+     */
+    public static void scanEnemyInformation(RobotInfo[] enemies, TreeInfo[] trees) throws GameActionException {
+        for (int i = enemies.length; --i>=0; ) {
+            switch (enemies[i].type) {
+                case ARCHON:
+                    updateForEnemyArchon(enemies[i]);
+                    break;
+                case GARDENER:
+                    updateForList(enemies[i].location, Constants.enemyGardnerPositions);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        for (int i = trees.length; --i>=0; ) {
+            if (trees[i].team == Unit.enemy) {
+                updateForList(trees[i].location, Constants.enemyTreePositions);
+            }
+        }
+    }
+
+    /**
+     * This method takes a list and updates it for a unit (it updates an existing location if they are close)
+     *
+     * @param loc
+     * @throws GameActionException
+     */
+    public static void updateForList(MapLocation loc, int[] channels) throws GameActionException {
+        int openChannel = 0;
+
+        for (int i = channels.length; --i>=0; ) {
+            int val = Unit.rc.readBroadcast(channels[i]);
+
+            if (val < 1) {
+                openChannel = i;
+                continue;
+            }
+
+            if (decodeMapLocationFromInt(val).distanceSquaredTo(loc) <= 36) {
+                Unit.rc.broadcast(channels[i], encodeMapLocationIntoInt(loc));
+                return;
+            }
+        }
+
+        Unit.rc.broadcast(openChannel, encodeMapLocationIntoInt(loc));
+    }
+
+    /**
+     * This method updates the broadcasted location of enemy archons
+     *
+     * @param enemyArchon
+     * @throws GameActionException
+     */
+    public static void updateForEnemyArchon(RobotInfo enemyArchon) throws GameActionException {
+        int id = enemyArchon.ID;
+
+        int firstArchonID = Unit.rc.readBroadcast(Constants.enemyArchon1ID);
+        if (firstArchonID == 0 || firstArchonID == id) {
+            Unit.rc.broadcast(Constants.enemyArchon1ID, id);
+            int loc = encodeMapLocationIntoInt(enemyArchon.location);
+            Unit.rc.broadcast(Constants.enemyArchon1Loc, loc);
+        } else {
+            int secondArchonID = Unit.rc.readBroadcast(Constants.enemyArchon2ID);
+            if (secondArchonID == 0 || secondArchonID == id) {
+                Unit.rc.broadcast(Constants.enemyArchon2ID, id);
+                int loc = encodeMapLocationIntoInt(enemyArchon.location);
+                Unit.rc.broadcast(Constants.enemyArchon2Loc, loc);
+            } else {
+                int thirdArchonID = Unit.rc.readBroadcast(Constants.enemyArchon3ID);
+                if (thirdArchonID == 0 || thirdArchonID == id) {
+                    Unit.rc.broadcast(Constants.enemyArchon3ID, id);
+                    int loc = encodeMapLocationIntoInt(enemyArchon.location);
+                    Unit.rc.broadcast(Constants.enemyArchon3Loc, loc);
+                }
+            }
+        }
+    }
+
+    /**
+     * This method takes an int and converts it to a MapLocation
+     *
+     * @param val
+     * @return
+     */
+    public static MapLocation decodeMapLocationFromInt(int val) {
+        int x = val % 1000;
+        int y = val / 1000;
+        return new MapLocation(x, y);
+    }
+
+    /**
+     * This method takes a mapLocation and converts it to an int
+     *
+     * @param loc
+     * @return
+     */
+    public static int encodeMapLocationIntoInt(MapLocation loc) {
+        int x = (int) loc.x;
+        int y = ((int) loc.y) * 1000;
+        return x + y;
+    }
+
+    /**
+     * This method determines if we still need to scout out the boundries of the map
+     *
+     * @return
+     * @throws GameActionException
+     */
     public static boolean needScout() throws GameActionException {
         if (!notFoundCorners) return false;
 

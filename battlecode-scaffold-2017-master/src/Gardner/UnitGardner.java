@@ -18,6 +18,10 @@ public class UnitGardner extends Unit {
         }
 
         RobotInfo[] enemies = rc.senseNearbyRobots(mySensorRadius, enemy);
+        RobotInfo[] allies = rc.senseNearbyRobots(mySensorRadius, us);
+
+        // send out distress signal
+        Util.GardnerDistressSignal(enemies, allies);
 
         if (Util.runAwayFromEnemies(enemies));
 

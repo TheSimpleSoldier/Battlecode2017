@@ -26,7 +26,6 @@ public strictfp class RobotPlayer {
                 break;
             case GARDENER:
                 if (rc.readBroadcast(Constants.gardnerCount) <= 3) {
-//                unit = new Gardner();
                     unit = new TreeGardner();
                 } else {
                     unit = new UnitGardner();
@@ -37,7 +36,7 @@ public strictfp class RobotPlayer {
                 unit = new LocalLumberJack();
                 break;
             case SCOUT:
-                unit = new Scout();
+                unit = new AnnoyScout();
                 break;
             case TANK:
                 unit = new Tank();
