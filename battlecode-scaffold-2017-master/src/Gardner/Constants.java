@@ -44,6 +44,14 @@ public class Constants {
     public static final int enemyArchon1ID = count++;
     public static final int enemyArchon2ID = count++;
     public static final int enemyArchon3ID = count++;
+
+    // keep track of round num:
+
+    public static final int enemyArchon1TimeStamp = count++;
+    public static final int enemyArchon2TimeStamp = count++;
+    public static final int enemyArchon3TimeStamp = count++;
+
+
     public static final int enemyArchon1Loc = count++;
     public static final int enemyArchon2Loc = count++;
     public static final int enemyArchon3Loc = count++;
@@ -71,6 +79,30 @@ public class Constants {
         enemyGardner8Loc,
         enemyGardner9Loc,
         enemyGardner10Loc
+    };
+
+    public static final int enemyGardner1TimeStamp = count++;
+    public static final int enemyGardner2TimeStamp = count++;
+    public static final int enemyGardner3TimeStamp = count++;
+    public static final int enemyGardner4TimeStamp = count++;
+    public static final int enemyGardner5TimeStamp = count++;
+    public static final int enemyGardner6TimeStamp = count++;
+    public static final int enemyGardner7TimeStamp = count++;
+    public static final int enemyGardner8TimeStamp = count++;
+    public static final int enemyGardner9TimeStamp = count++;
+    public static final int enemyGardner10TimeStamp = count++;
+
+    public static final int[] enemyGardnerTimeStamps = {
+            enemyGardner1TimeStamp,
+            enemyGardner2TimeStamp,
+            enemyGardner3TimeStamp,
+            enemyGardner4TimeStamp,
+            enemyGardner5TimeStamp,
+            enemyGardner6TimeStamp,
+            enemyGardner7TimeStamp,
+            enemyGardner8TimeStamp,
+            enemyGardner9TimeStamp,
+            enemyGardner10TimeStamp
     };
 
     // keep track of enemy trees

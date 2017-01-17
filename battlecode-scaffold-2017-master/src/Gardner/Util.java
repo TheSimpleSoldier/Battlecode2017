@@ -31,8 +31,40 @@ public strictfp class Util {
         }
 
         // look for enemy archons nearby
+        if (Unit.rc.getRoundNum() - Unit.rc.readBroadcast(Constants.enemyArchon1TimeStamp) <= Constants.roundCutOff) {
+            MapLocation loc = decodeMapLocationFromInt(Unit.rc.readBroadcast(Constants.enemyArchon1Loc));
+
+            if (loc.distanceSquaredTo(us) <= Constants.farthestDistToRespondToAttack) {
+                return loc;
+            }
+        }
+
+        if (Unit.rc.getRoundNum() - Unit.rc.readBroadcast(Constants.enemyArchon2TimeStamp) <= Constants.roundCutOff) {
+            MapLocation loc = decodeMapLocationFromInt(Unit.rc.readBroadcast(Constants.enemyArchon2Loc));
+
+            if (loc.distanceSquaredTo(us) <= Constants.farthestDistToRespondToAttack) {
+                return loc;
+            }
+        }
+
+        if (Unit.rc.getRoundNum() - Unit.rc.readBroadcast(Constants.enemyArchon3TimeStamp) <= Constants.roundCutOff) {
+            MapLocation loc = decodeMapLocationFromInt(Unit.rc.readBroadcast(Constants.enemyArchon3Loc));
+
+            if (loc.distanceSquaredTo(us) <= Constants.farthestDistToRespondToAttack) {
+                return loc;
+            }
+        }
 
         // look for enemy gardners nearby
+        for (int i = Constants.enemyGardnerPositions.length; --i>=0; ) {
+            if (Unit.rc.getRoundNum() - Unit.rc.readBroadcast(Constants.gardnerInDestressTimeStamps[i]) <= Constants.roundCutOff) {
+                MapLocation loc = decodeMapLocationFromInt(Unit.rc.readBroadcast(Constants.gardnerInDistressLocs[i]));
+
+                if (loc.distanceSquaredTo(us) <= Constants.farthestDistToRespondToAttack) {
+                    return loc;
+                }
+            }
+        }
 
         // look for enemy units to kill
 
@@ -171,19 +203,22 @@ public strictfp class Util {
         if (firstArchonID == 0 || firstArchonID == id) {
             Unit.rc.broadcast(Constants.enemyArchon1ID, id);
             int loc = encodeMapLocationIntoInt(enemyArchon.location);
-            Unit.rc.broadcast(Constants.enemyArchon1Loc, loc);
+            Unit.rc.broadcast(Constants.enemyArchon1Loc, loc);\
+            Unit.rc.broadcast(Constants.enemyArchon1TimeStamp, Unit.rc.getRoundNum());
         } else {
             int secondArchonID = Unit.rc.readBroadcast(Constants.enemyArchon2ID);
             if (secondArchonID == 0 || secondArchonID == id) {
                 Unit.rc.broadcast(Constants.enemyArchon2ID, id);
                 int loc = encodeMapLocationIntoInt(enemyArchon.location);
                 Unit.rc.broadcast(Constants.enemyArchon2Loc, loc);
+                Unit.rc.broadcast(Constants.enemyArchon2TimeStamp, Unit.rc.getRoundNum());
             } else {
                 int thirdArchonID = Unit.rc.readBroadcast(Constants.enemyArchon3ID);
                 if (thirdArchonID == 0 || thirdArchonID == id) {
                     Unit.rc.broadcast(Constants.enemyArchon3ID, id);
                     int loc = encodeMapLocationIntoInt(enemyArchon.location);
                     Unit.rc.broadcast(Constants.enemyArchon3Loc, loc);
+                    Unit.rc.broadcast(Constants.enemyArchon3TimeStamp, Unit.rc.getRoundNum());
                 }
             }
         }
